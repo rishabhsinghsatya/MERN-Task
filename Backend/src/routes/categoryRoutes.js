@@ -60,4 +60,32 @@ router.get("/categories/:identifier", async (req, res) => {
   }
 });
 
+// PUT update category attributes
+router.put("/categories/:categoryId", async (req, res) => {
+  const categoryId = req.params.categoryId;
+
+  try {
+    const { name, image, description, taxApplicability, tax, taxType } =
+      req.body;
+
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    category.name = name || category.name;
+    category.image = image || category.image;
+    category.description = description || category.description;
+    category.taxApplicability = taxApplicability ?? category.taxApplicability;
+    category.tax = tax ?? category.tax;
+    category.taxType = taxType || category.taxType;
+
+    const updatedCategory = await category.save();
+
+    res.status(200).json(updatedCategory);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;

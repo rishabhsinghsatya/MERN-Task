@@ -78,4 +78,31 @@ router.get("/subcategories/:identifier", async (req, res) => {
   }
 });
 
+// PUT update subcategory attributes
+router.put("/subcategories/:subCategoryId", async (req, res) => {
+  const subCategoryId = req.params.subCategoryId;
+
+  try {
+    const { name, image, description, taxApplicability, tax } = req.body;
+
+    const subcategory = await SubCategory.findById(subCategoryId);
+    if (!subcategory) {
+      return res.status(404).json({ message: "Subcategory not found" });
+    }
+
+    subcategory.name = name || subcategory.name;
+    subcategory.image = image || subcategory.image;
+    subcategory.description = description || subcategory.description;
+    subcategory.taxApplicability =
+      taxApplicability ?? subcategory.taxApplicability;
+    subcategory.tax = tax ?? subcategory.tax;
+
+    const updatedSubCategory = await subcategory.save();
+
+    res.status(200).json(updatedSubCategory);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;
