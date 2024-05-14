@@ -61,4 +61,63 @@ router.post("/items", async (req, res) => {
   }
 });
 
+// GET all items
+router.get("/items", async (req, res) => {
+  try {
+    const items = await Item.find();
+    res.status(200).json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET all items under a category
+router.get("/categories/:categoryId/items", async (req, res) => {
+  const categoryId = req.params.categoryId;
+
+  try {
+    const items = await Item.find({ category: categoryId });
+    res.status(200).json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET all items under a sub-category
+router.get("/subcategories/:subCategoryId/items", async (req, res) => {
+  const subCategoryId = req.params.subCategoryId;
+
+  try {
+    const items = await Item.find({ subCategory: subCategoryId });
+    res.status(200).json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET an item by name or ID
+router.get("/items/:identifier", async (req, res) => {
+  const identifier = req.params.identifier;
+
+  try {
+    // Check if the identifier is a valid ObjectId
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+
+    let item;
+    if (isObjectId) {
+      item = await Item.findById(identifier);
+    } else {
+      item = await Item.findOne({ name: identifier });
+    }
+
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    res.status(200).json(item);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;
